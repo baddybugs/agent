@@ -111,12 +111,12 @@ class TimelineCollector implements CollectorInterface
         });
 
         // Cache operations
-        Event::listen('cache:hit', function ($key) {
-            $this->addTimelineEvent('cache', 'hit', ['key' => $key]);
+        Event::listen(\Illuminate\Cache\Events\CacheHit::class, function ($event) {
+            $this->addTimelineEvent('cache', 'hit', ['key' => $event->key]);
         });
 
-        Event::listen('cache:missed', function ($key) {
-            $this->addTimelineEvent('cache', 'miss', ['key' => $key]);
+        Event::listen(\Illuminate\Cache\Events\CacheMissed::class, function ($event) {
+            $this->addTimelineEvent('cache', 'miss', ['key' => $event->key]);
         });
     }
 

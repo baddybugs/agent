@@ -1,11 +1,13 @@
 <?php
 
-namespace Baddybugs\Agent\Collectors;
+namespace BaddyBugs\Agent\Collectors;
 
+use BaddyBugs\Agent\BaddyBugs;
 use Illuminate\Support\Facades\Event;
 
 class MemoryCollector implements CollectorInterface
 {
+    protected BaddyBugs $baddybugs;
     protected array $snapshots = [];
     protected bool $enabled = true;
     protected int $sampleInterval = 100; // Sample every N requests
@@ -13,7 +15,12 @@ class MemoryCollector implements CollectorInterface
     protected float $startMemory = 0;
     protected array $checkpoints = [];
 
-    public function register(): void
+    public function __construct(BaddyBugs $baddybugs)
+    {
+        $this->baddybugs = $baddybugs;
+    }
+
+    public function boot(): void
     {
         if (!$this->enabled) {
             return;

@@ -5,6 +5,8 @@ namespace BaddyBugs\Agent\Collectors;
 use BaddyBugs\Agent\BaddyBugs;
 use Illuminate\Support\Facades\Queue;
 use Illuminate\Support\Facades\Cache;
+use Illuminate\Support\Facades\Schema;
+use Illuminate\Support\Facades\DB;
 
 /**
  * Queue Metrics Collector
@@ -131,8 +133,8 @@ class QueueMetricsCollector implements CollectorInterface
     {
         try {
             // Try to count failed jobs from database
-            if (schema()->hasTable('failed_jobs')) {
-                return \DB::table('failed_jobs')->count();
+            if (Schema::hasTable('failed_jobs')) {
+                return DB::table('failed_jobs')->count();
             }
         } catch (\Throwable $e) {
             // Ignore

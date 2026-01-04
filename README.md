@@ -1,356 +1,490 @@
-# BaddyBugs Agent
+# 🐛 BaddyBugs PHP Agent
 
-The intelligent observability agent for Laravel applications. BaddyBugs Agent collects logs, exceptions, queries, jobs, and session replays to provide deep insights into your application's health and performance.
+**L'agent d'observabilité complet pour Laravel** - Collecte automatiquement toutes les métriques, erreurs et traces de votre application.
 
-## Requirements
+[![PHP Version](https://img.shields.io/badge/PHP-8.2%2B-blue.svg)](https://php.net)
+[![Laravel Version](https://img.shields.io/badge/Laravel-10.x%20%7C%2011.x%20%7C%2012.x-red.svg)](https://laravel.com)
+[![License](https://img.shields.io/badge/license-MIT-green.svg)](LICENSE)
 
-- PHP ^8.2
-- Laravel 10.x, 11.x, or 12.x
-- `guzzlehttp/guzzle` ^7.8
+---
 
-## Installation
+## 📋 Table des Matières
 
-Install the package via composer:
+- [Fonctionnalités](#-fonctionnalités)
+- [Installation](#-installation)
+- [Configuration Rapide](#-configuration-rapide)
+- [Données Collectées](#-données-collectées)
+- [Configuration Avancée](#-configuration-avancée)
+- [Lifecycle HTTP](#-lifecycle-http-complet)
+- [Intégrations](#-intégrations)
+- [API Manuelle](#-api-manuelle)
+- [Performance](#-performance)
+- [Dépannage](#-dépannage)
+
+---
+
+## ✨ Fonctionnalités
+
+### 🔍 Observabilité Complète
+- **42 collectors** couvrant tous les aspects de Laravel
+- **Lifecycle HTTP complet** : Bootstrap → Middleware → Controller → Response
+- **Distributed tracing** avec propagation des trace IDs
+- **Timeline waterfall** pour visualiser chaque requête
+
+### 🚨 Détection Automatique
+- **Exceptions** (gérées et non gérées)
+- **Requêtes SQL lentes** et problèmes N+1
+- **Menaces de sécurité** (SQL injection, XSS, path traversal)
+- **Fuites mémoire** et usage excessif
+- **Jobs bloqués** et échecs de queue
+
+### 📊 Analytics Produit
+- **Feature tracking** automatique par route
+- **Session analytics** (durée, bounce rate)
+- **Form analytics** (erreurs de validation, types de formulaires)
+- **Authentication events** (login, 2FA, lockouts)
+
+### 🔒 Sécurité & Confidentialité
+- **Redaction automatique** des données sensibles
+- **Scrubbing PII** (mots de passe, cartes bancaires, tokens)
+- **Mode GDPR** pour anonymisation complète
+- **Sampling configurable** par collector
+
+---
+
+## 📦 Installation
+
+### Prérequis
+- PHP 8.2+
+- Laravel 10.x, 11.x ou 12.x
+- Extension JSON activée
+
+### Via Composer
 
 ```bash
 composer require baddybugs/agent
 ```
 
-## Configuration
-
-### 1. Publish Configuration
-
-Publish the configuration file to customize the agent's behavior:
+### Publication de la Configuration
 
 ```bash
 php artisan vendor:publish --tag=baddybugs-config
 ```
 
-### 2. Environment Setup
+---
 
-Add the following variables to your `.env` file. access your BaddyBugs dashboard to get your API Key.
+## ⚡ Configuration Rapide
+
+### 1. Ajoutez vos clés dans `.env`
 
 ```env
 BADDYBUGS_ENABLED=true
-BADDYBUGS_API_KEY=your_api_key_here
-BADDYBUGS_ENDPOINT=https://api.baddybugs.com/v1/ingest
-BADDYBUGS_APP_NAME="My Laravel App"
+BADDYBUGS_API_KEY=your-api-key-here
+BADDYBUGS_ENDPOINT=https://ingest.baddybugs.com/api/v1/events
 BADDYBUGS_ENV=production
 ```
 
-### 3. Key Configuration Options
+### 2. C'est tout ! 🎉
 
-The `config/baddybugs.php` file allows you to fine-tune every aspect of the agent.
+L'agent démarre automatiquement et collecte les données.
 
-- **Collectors**: Enable/disable specific collectors (Requests, Queries, Jobs, etc.).
-- **Sampling**: Adjust sampling rates for high-volume events (default 1.0 = 100%).
-- **Privacy**: Configure redaction for sensitive keys (passwords, tokens) and session replay masking.
-- **Session Replay**: Enable/disable session recording and set privacy modes ('strict', 'moderate').
-- **Feature Tracking**: Enable/disable product analytics.
+---
 
-## Usage
+## 📊 Données Collectées
 
-Once installed and configured, BaddyBugs automatically monitors your application. However, you can enhance the data with manual instrumentation.
+### Lifecycle HTTP Complet
 
-### Context
+Pour chaque requête HTTP, l'agent capture :
 
-Add custom context to all subsequent events in the current request. This is useful for tagging events with user IDs, tenant IDs, or feature flags.
-
-```php
-use BaddyBugs\Agent\Facades\BaddyBugs;
-
-// Add global context
-BaddyBugs::context([
-    'tenant_id' => 123,
-    'plan' => 'enterprise',
-    'feature_flag_x' => true,
-]);
+```
+┌─────────────────────────────────────────────────────────────────────┐
+│ BOOTSTRAP (2.3ms)                                                    │
+│ ├── PHP Version: 8.2.0                                               │
+│ ├── Laravel Version: 11.0.0                                          │
+│ └── SAPI: fpm-fcgi                                                   │
+├─────────────────────────────────────────────────────────────────────┤
+│ ROUTING (0.8ms)                                                      │
+│ ├── Route: user.profile                                              │
+│ ├── URI: /api/users/{user}                                           │
+│ └── Methods: GET, HEAD                                               │
+├─────────────────────────────────────────────────────────────────────┤
+│ MIDDLEWARE (12.5ms)                                                  │
+│ ├── Global: EncryptCookies, VerifyCsrfToken (5)                      │
+│ ├── Route: auth, throttle:60,1 (2)                                   │
+│ └── Total: 7 middlewares                                             │
+├─────────────────────────────────────────────────────────────────────┤
+│ CONTROLLER (45.2ms)                                                  │
+│ ├── Class: App\Http\Controllers\UserController                       │
+│ ├── Action: show                                                     │
+│ └── Parameters: [user]                                               │
+├─────────────────────────────────────────────────────────────────────┤
+│ RESPONSE (1.2ms)                                                     │
+│ ├── Status: 200                                                      │
+│ ├── Content-Type: application/json                                   │
+│ └── Size: 1,234 bytes                                                │
+├─────────────────────────────────────────────────────────────────────┤
+│ TERMINATE (0.5ms)                                                    │
+│ └── Callbacks executed                                               │
+└─────────────────────────────────────────────────────────────────────┘
+TOTAL: 62.5ms | Memory Peak: 24.5 MB
 ```
 
-### User Tracking
+### Collectors Disponibles (42)
 
-Identify the authenticated user for better session correlation. By default, BaddyBugs attempts to resolve the standard Laravel user. You can customize this:
+| Catégorie | Collectors |
+|-----------|------------|
+| **HTTP & Requêtes** | RequestCollector, HttpClientCollector, RouteCollector, RateLimitCollector, LifecycleCollector |
+| **Database** | QueryCollector, DatabaseCollector, RedisCollector |
+| **Eloquent** | ModelCollector, EloquentCollector |
+| **Queue & Jobs** | JobCollector, ScheduledTaskCollector, QueueMetricsCollector |
+| **Exceptions** | ExceptionCollector, HandledExceptionCollector |
+| **Logs** | LogCollector |
+| **Email & Notifications** | MailCollector, NotificationCollector, BroadcastCollector |
+| **Sécurité** | SecurityCollector, ThreatCollector, GateCollector, AuthCollector |
+| **Analytics** | FeatureCollector, SessionCollector, FormCollector, ValidationCollector |
+| **Performance** | TimelineCollector, MiddlewareCollector, ProfilingCollector, MemoryCollector, ViewCollector |
+| **Fichiers** | FileUploadCollector, FilesystemCollector |
+| **Livewire** | LivewireCollector |
+| **i18n** | TranslationCollector |
+| **Tests** | TestCollector |
+| **AI/LLM** | LLMCollector |
+| **Health** | HealthCollector |
+| **Cache** | CacheCollector |
+| **Events** | EventCollector |
+| **Commands** | CommandCollector |
 
-```php
-BaddyBugs::user(function ($user) {
-    return [
-        'id' => $user->custom_id,
-        'email' => $user->email,
-        'role' => $user->role,
-    ];
-});
-```
+---
 
-### Manual Recording
+## ⚙️ Configuration Avancée
 
-Record custom events or exceptions manually.
+### Collectors Individuels
 
-```php
-// Record a custom log/event
-BaddyBugs::record('payment', 'processed', [
-    'amount' => 99.00,
-    'currency' => 'USD'
-]);
-
-// Track a custom metric
-BaddyBugs::reportHealth('scheduler', [
-    'last_run' => now()->toIso8601String(), 
-    'status' => 'healthy'
-]);
-```
-
-## Filtering
-
-Control exactly what gets sent to BaddyBugs using granular filters.
-
-### Global Filter
-Run a check for every single event type. Return `false` to discard the event.
-
-```php
-BaddyBugs::filter(function ($type, $name, $payload) {
-    // Ignore all events from the 'health-check' endpoint
-    if ($payload['url'] ?? '' === '/health-check') {
-        return false;
-    }
-    return true;
-});
-```
-
-### Type-Specific Filters
-
-**Exceptions:**
-Filter exceptions based on the actual exception instance.
-
-```php
-BaddyBugs::filterExceptions(function (\Throwable $e) {
-    // Ignore generic 404s
-    if ($e instanceof \Symfony\Component\HttpKernel\Exception\NotFoundHttpException) {
-        return false;
-    }
-    return true;
-});
-```
-
-**Queries:**
-Filter database queries based on SQL, bindings, execution time, and connection.
-
-```php
-BaddyBugs::filterQueries(function ($sql, $bindings, $time, $connection) {
-    // Only record queries that take longer than 1 second
-    return $time > 1000;
-});
-```
-
-**Jobs:**
-Filter queued jobs based on the job event.
-
-```php
-BaddyBugs::filterJobs(function ($event) {
-    // Ignore a high-frequency internal job
-    return $event->job->resolveName() !== 'App\Jobs\Ping';
-});
-```
-
-**Mail:**
-Filter outgoing emails.
-
-```php
-BaddyBugs::filterMail(function ($event) {
-    // Don't log password reset emails
-    return !str_contains($event->message->getSubject(), 'Reset Password');
-});
-```
-
-## Advanced Features
-
-### Session Replay
-Record user sessions to replay exactly what users saw and did.
-
-1. Enable in `.env`:
-   ```env
-   BADDYBUGS_SESSION_REPLAY_ENABLED=true
-   ```
-2. Configure Privacy in `config/baddybugs.php`:
-   - `strict` (Default): Masks all text, blocks passwords & sensitive fields.
-   - `moderate`: Masks only inputs.
-
-### Regression Analysis
-BaddyBugs can correlate errors with specific deployments and deployments with git commits.
-
-Ensure the following env vars are present during deployment:
+Activez/désactivez chaque collector :
 
 ```env
-BADDYBUGS_RELEASE=v1.2.0
-BADDYBUGS_GIT_SHA=a1b2c3d
+# Désactiver un collector spécifique
+BADDYBUGS_ELOQUENT_TRACKING_ENABLED=false
+BADDYBUGS_LIVEWIRE_MONITORING_ENABLED=false
+BADDYBUGS_COLLECTORS_BROADCAST_ENABLED=false
 ```
 
-### Security Scanning
-The agent passively scans for security issues like:
-- SQL Injection attempts in request parameters.
-- Exposed sensitive data (Credit Cards, API Keys) in logs/payloads.
-- Vulnerable Composer dependencies (requires `BADDYBUGS_SECURITY_GITHUB_TOKEN`).
+### Sécurité & Redaction
 
-### Performance Profiling
-Detailed breakdown of request lifecycles (Boot, Middleware, Controller, View).
-- Enable `BADDYBUGS_PROFILING_ENABLED=true` to see flamegraphs and phase breakdowns key transactions.
-
-## Frontend & Livewire Monitoring
-
-BaddyBugs provides **zero-configuration** monitoring for standard Laravel, Livewire, and FilamentPHP frontends.
-
-### 1. Enable Frontend Monitoring
-In your `.env`:
-```env
-BADDYBUGS_FRONTEND_ENABLED=true
-```
-
-### 2. Add Blade Directive
-Add the `@baddybugs` directive to your main layout (e.g., `resources/views/layouts/app.blade.php`), just before the closing `</body>` tag:
-
-```blade
-    <!-- ... other scripts ... -->
-    @baddybugs
-</body>
-</html>
-```
-
-### 3. FilamentPHP Integration
-For Filament panels, publish the Filament config or register the plugin. **However, BaddyBugs automatically injects itself** into Filament's `renderHook` if the collector is enabled, so usually **no extra steps are needed**.
-
-If you need manual control in Filament:
 ```php
-public function panel(Panel $panel): Panel
+// config/baddybugs.php
+
+'redact_keys' => [
+    'password',
+    'password_confirmation',
+    'credit_card',
+    'cvv',
+    'ssn',
+    'token',
+    'secret',
+    'api_key',
+],
+
+'redact_headers' => [
+    'authorization',
+    'cookie',
+    'x-xsrf-token',
+],
+```
+
+### Sampling
+
+Réduisez le volume de données avec le sampling :
+
+```env
+# Sampling global (0.0 à 1.0)
+BADDYBUGS_SAMPLING_RATE=0.5  # 50% des requêtes
+
+# Sampling par type
+BADDYBUGS_SESSION_REPLAY_SAMPLING=0.01  # 1% pour replay
+BADDYBUGS_QUERY_SAMPLING_RATE=0.1       # 10% des queries
+```
+
+### Ignorer des Routes
+
+```php
+// config/baddybugs.php
+
+'ignore_paths' => [
+    'health-check',
+    'livewire/*',
+    'telescope/*',
+    '_debugbar/*',
+],
+```
+
+---
+
+## 🌊 Lifecycle HTTP Complet
+
+L'agent capture le lifecycle complet de chaque requête avec le `LifecycleCollector` :
+
+### Phases Capturées
+
+| Phase | Description | Données |
+|-------|-------------|---------|
+| **Bootstrap** | Chargement de Laravel | PHP version, Laravel version, SAPI |
+| **Routing** | Matching de route | Route name, URI, methods |
+| **Middleware** | Exécution middleware | Stack complète, timings individuels |
+| **Controller** | Logique métier | Class, action, parameters |
+| **Response** | Préparation réponse | Status, content-type, size |
+| **Terminate** | Callbacks terminables | Cleanup actions |
+
+### Visualisation Waterfall
+
+Chaque requête génère un événement `lifecycle.http_request` avec :
+
+```json
 {
-    return $panel
-        ->renderHook('panels::body.end', fn () => Blade::render('@baddybugs'));
+  "type": "lifecycle",
+  "name": "http_request",
+  "data": {
+    "total_duration_ms": 62.5,
+    "phases": [
+      {"name": "bootstrap", "duration_ms": 2.3, "percentage": 3.68},
+      {"name": "routing", "duration_ms": 0.8, "percentage": 1.28},
+      {"name": "middleware", "duration_ms": 12.5, "percentage": 20.0},
+      {"name": "controller", "duration_ms": 45.2, "percentage": 72.32},
+      {"name": "response", "duration_ms": 1.2, "percentage": 1.92},
+      {"name": "terminate", "duration_ms": 0.5, "percentage": 0.8}
+    ],
+    "summary": {
+      "controller": "App\\Http\\Controllers\\UserController",
+      "action": "show",
+      "route_name": "user.profile",
+      "method": "GET",
+      "url": "https://example.com/api/users/123",
+      "status_code": 200
+    },
+    "memory": {
+      "peak_mb": 24.5
+    }
+  }
 }
 ```
 
-### 4. What is collected?
-- **Web Vitals**: LCP, CLS, INP monitoring automatically initiated.
-- **Trace ID Correlation**: Frontend headers are tagged with the backend Trace ID for end-to-end tracing.
-- **Livewire**: Deep integration automatically captures:
-  - `component.hydrate` / `dehydrate` statistics.
-  - Failed Livewire updates.
-  - Slow Livewire component renders.
-- **Errors**: Uncaught Javascript errors (via window.onerror).
+---
 
-> **Note for SPA Users**: If you are using **Inertia.js, Vue, or React** separately from Blade/Livewire, please install our dedicated JS SDK: `npm install @baddybugs/js-sdk`.
+## 🔗 Intégrations
 
-## Additional Monitoring Capabilities
+### Livewire / Filament
 
-### LLM Observability
-Track costs, usage, and performance of LLM requests (OpenAI, Anthropic, Mistral, etc.).
+```env
+BADDYBUGS_LIVEWIRE_MONITORING_ENABLED=true
+```
+
+Capture automatiquement :
+- Initialisation des composants
+- Requêtes lentes
+- Erreurs de déshydratation
+- Actions utilisateur
+
+### OpenAI / LLM
 
 ```php
 use BaddyBugs\Agent\Facades\BaddyBugs;
 
-BaddyBugs::trackLLM(
+// Tracking automatique via recordLLMRequest()
+BaddyBugs::recordLLMRequest(
     provider: 'openai',
     model: 'gpt-4',
     prompt: $prompt,
     response: $response,
-    usage: ['prompt_tokens' => 50, 'completion_tokens' => 100],
-    durationMs: 1200,
-    costUsd: 0.006 // Optional: Auto-calculated for known models
+    usage: ['prompt_tokens' => 100, 'completion_tokens' => 50],
+    durationMs: 1500
 );
 ```
 
-### Eloquent Model Monitoring
-BaddyBugs automatically adds Breadcrumbs for all model creation, updates, and deletions.
-- To record full model events (with changes), enable `models_detailed => true` in config.
+### Guzzle HTTP Client
 
-### Outgoing HTTP Requests
-The agent automatically captures all outgoing HTTP requests made via Laravel's `Http` client.
-
-**Automatic Coverage:**
-- **Laravel `Http::*`**: Fully automatic.
-- **Failures**: 4xx/5xx errors are force-sampled and recorded.
-- **Slowness**: Requests slower than `http_client_slow_threshold_ms` are recorded.
-- **Trace Propagation**: Adds `X-Baddybugs-Trace-Id` to outgoing requests for distributed tracing.
-
-**Manual Integration for Other Clients:**
-
-For direct **Guzzle** usage (without Laravel's `Http` facade):
 ```php
-use GuzzleHttp\Client;
-use GuzzleHttp\HandlerStack;
-use BaddyBugs\Agent\Collectors\HttpClientCollector;
+$client = new \GuzzleHttp\Client([
+    'handler' => BaddyBugs::getGuzzleMiddlewareStack(),
+]);
 
-$stack = HandlerStack::create();
-$stack->push(HttpClientCollector::guzzleMiddleware());
-$client = new Client(['handler' => $stack]);
+// Toutes les requêtes sont automatiquement tracées
+$response = $client->get('https://api.example.com/data');
 ```
 
-For **Symfony HttpClient**, **Buzz**, **HTTPlug**, or any **PSR-18** client:
+---
+
+## 🛠️ API Manuelle
+
+### Enregistrer un Événement Custom
+
 ```php
-use BaddyBugs\Agent\Http\TracedHttpClient;
-use Symfony\Component\HttpClient\Psr18Client;
+use BaddyBugs\Agent\Facades\BaddyBugs;
 
-$symfonyClient = new Psr18Client();
-$tracedClient = new TracedHttpClient($symfonyClient);
-
-// All requests are now monitored
-$response = $tracedClient->sendRequest($request);
+BaddyBugs::record('custom', 'user_purchased', [
+    'product_id' => 123,
+    'amount' => 99.99,
+    'currency' => 'EUR',
+]);
 ```
 
-For **cURL** or `file_get_contents` (Manual Recording):
+### Feature Tracking
+
 ```php
-use BaddyBugs\Agent\Collectors\HttpClientCollector;
+// Tracker l'utilisation d'une feature
+BaddyBugs::feature('dark_mode_enabled', [
+    'user_segment' => 'premium',
+]);
 
-$start = microtime(true);
-$ch = curl_init($url);
-// ... curl options ...
-$result = curl_exec($ch);
-$status = curl_getinfo($ch, CURLINFO_HTTP_CODE);
-curl_close($ch);
-
-HttpClientCollector::recordManual('GET', $url, $status, microtime(true) - $start);
+// Tracker un événement custom
+BaddyBugs::track('button_clicked', [
+    'button' => 'subscribe',
+    'page' => 'pricing',
+]);
 ```
 
-
-### Scheduled Tasks & Commands
-- **Schedule**: Automatically monitors scheduled task executions, failures, and runtimes.
-- **Commands**: Captures artisan command execution, exit codes, and durations.
-
-### Authorization & Security
-The agent automatically monitors your application's `Gate` and Policy checks.
-- **Gates**: Logs every `Gate::allows()` or `Gate::denies()` check, including the target model and arguments.
-- **Policies**: Tracks policy authorizations to help you audit who accessed what resource.
-
-### Redis & Cache Deep Dive
-Beyond standard cache hits/misses, the agent now monitors raw **Redis** commands.
-- **RedisCollector**: Captures `HGETALL`, `LPUSH`, and detailed command execution times to find bottlenecks in your pub/sub or custom Redis usage.
-
-### OpenTelemetry Interoperability
-BaddyBugs is designed to work with the modern observability ecosystem.
-- **W3C Trace Context**: The agent automatically parses incoming `traceparent` headers to correlate distributed traces.
-- **Propagation**: Outgoing HTTP requests via `Http` facade or `TracedHttpClient` automatically inject standard W3C `traceparent` headers.
-
-### CI/CD Test Suite Integration
-Turn BaddyBugs into a CI monitoring tool by capturing test results and failures.
-
-1. Add `BADDYBUGS_TEST_MONITORING=true` to your `.env.testing`.
-2. Add the trait to your `tests/TestCase.php`:
+### Breadcrumbs
 
 ```php
-use BaddyBugs\Agent\Traits\MonitorsTests;
+use BaddyBugs\Agent\Breadcrumbs;
 
-abstract class TestCase extends BaseTestCase
-{
-    use CreatesApplication, MonitorsTests;
+// Ajouter un breadcrumb pour contexte
+Breadcrumbs::add('user.action', 'User clicked checkout button');
+Breadcrumbs::add('api.call', 'Called payment gateway', ['gateway' => 'stripe']);
+```
+
+### Profiling Manuel
+
+```php
+use BaddyBugs\Agent\Facades\BaddyBugs;
+
+// Mesurer une opération
+BaddyBugs::startTimer('heavy_computation');
+// ... code coûteux ...
+BaddyBugs::stopTimer('heavy_computation'); // Enregistre automatiquement la durée
+```
+
+### Context Partagé
+
+```php
+// Ajouter du contexte à tous les événements
+BaddyBugs::setContext([
+    'tenant_id' => $tenant->id,
+    'subscription_plan' => 'enterprise',
+]);
+```
+
+### Exceptions Gérées
+
+```php
+try {
+    // Code qui peut échouer
+    $result = riskyOperation();
+} catch (Exception $e) {
+    // Reporter l'exception même si elle est gérée
+    reportHandledException($e, [
+        'operation' => 'risky_operation',
+        'severity' => 'medium',
+    ]);
+    
+    // Fallback
+    $result = defaultValue();
 }
 ```
 
-Now every test run (Pass/Fail) is sent to the dashboard, correlated with any logs or SQL queries triggered during that test.
+---
 
+## ⚡ Performance
 
+### Impact Minimal
 
-**Logs not appearing?**
-1. Check `BADDYBUGS_ENABLED=true` in `.env`.
-2. Check `storage/logs/laravel.log` for any "BaddyBugs connection error".
-3. Verify your `BADDYBUGS_API_KEY`.
+L'agent est conçu pour un impact minimal :
+- **< 2ms** overhead par requête en mode standard
+- **Async sending** des événements (ne bloque pas la réponse)
+- **Compression Gzip** des payloads
+- **Buffering intelligent** avec envoi par batch
 
-**Performance issues?**
-- Enable "Performance Mode" in production for high-traffic apps: `BADDYBUGS_PERFORMANCE_MODE=true`.
-- Adjust sampling rates in `config/baddybugs.php`.
+### Mode Performance
+
+Pour les applications haute performance :
+
+```env
+BADDYBUGS_PERFORMANCE_MODE=true
+```
+
+Cela désactive automatiquement les collectors à haut overhead.
+
+### Sampling Recommandé pour Production
+
+```env
+BADDYBUGS_SAMPLING_RATE=1.0        # Toutes les requêtes
+BADDYBUGS_QUERY_SAMPLING_RATE=0.1  # 10% des queries (volume élevé)
+BADDYBUGS_CACHE_SAMPLING=0.05      # 5% des ops cache
+BADDYBUGS_SESSION_REPLAY_SAMPLING=0.01  # 1% session replay
+```
+
+---
+
+## 🔧 Dépannage
+
+### L'agent ne collecte pas
+
+```php
+// Vérifiez que l'agent est activé
+php artisan tinker
+>>> config('baddybugs.enabled')
+true
+
+// Vérifiez la clé API
+>>> config('baddybugs.api_key')
+"your-api-key"
+```
+
+### Vérifier les logs
+
+```bash
+tail -f storage/logs/laravel.log | grep -i baddybugs
+```
+
+### Tester la connexion
+
+```bash
+php artisan baddybugs:send --test
+```
+
+### Commandes Artisan
+
+```bash
+# Information sur l'agent
+php artisan about
+
+# Envoyer les événements en attente
+php artisan baddybugs:send
+
+# Vider le buffer
+php artisan baddybugs:flush
+```
+
+---
+
+## 📚 Documentation Additionnelle
+
+- **[DATA_SCHEMA.md](DATA_SCHEMA.md)** - Schéma complet des données pour le dashboard
+- **[COLLECTORS_INVENTORY.md](COLLECTORS_INVENTORY.md)** - Inventaire détaillé des 42 collectors
+- **[AGENT_ANALYSIS.md](AGENT_ANALYSIS.md)** - Analyse technique de l'architecture
+
+---
+
+## 🤝 Support
+
+- **Documentation** : [docs.baddybugs.com](https://docs.baddybugs.com)
+- **Issues** : [GitHub Issues](https://github.com/baddybugs/agent/issues)
+- **Email** : support@baddybugs.com
+
+---
+
+## 📄 Licence
+
+MIT License - voir [LICENSE](LICENSE) pour plus de détails.
+
+---
+
+**Fait avec ❤️ par l'équipe BaddyBugs**

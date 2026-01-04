@@ -94,12 +94,12 @@ return [
     |
     */
     'collectors' => [
+        // Core collectors (always recommended)
         'requests' => true,
         'queries' => true,
         'jobs' => true,
         'commands' => true,
         'schedule' => true,
-        'llm' => true,
         'exceptions' => true,
         'cache' => true,
         'mail' => true,
@@ -107,12 +107,95 @@ return [
         'events' => true,
         'logs' => true,
         'http_client' => true,
-        'models' => true,           // NEW: Track Eloquent model changes (breadcrumbs)
-        'models_detailed' => false, // NEW: Full model event logging (high volume)
+        'models' => true,
+        'models_detailed' => false, // Full model event logging (high volume)
         'profiling' => false,
-        'gate' => true,             // NEW: Track Gate/Authorization checks
-        'redis' => true,            // NEW: Track Redis commands
-        'test' => env('BADDYBUGS_TEST_MONITORING', false), // NEW: CI/CD Test reporting
+        'gate' => true,
+        'redis' => true,
+        'test' => env('BADDYBUGS_TEST_MONITORING', false),
+        
+        // NEW: Advanced collectors
+        'auth' => [
+            'enabled' => env('BADDYBUGS_COLLECTORS_AUTH_ENABLED', true),
+            'options' => [
+                'track_logins' => true,
+                'track_logouts' => true,
+                'track_failed_attempts' => true,
+                'track_lockouts' => true,
+                'track_password_resets' => true,
+                'track_registrations' => true,
+                'track_verifications' => true,
+                'track_2fa' => true,
+                'track_impersonation' => true,
+            ],
+        ],
+        
+        'broadcast' => [
+            'enabled' => env('BADDYBUGS_COLLECTORS_BROADCAST_ENABLED', false),
+            'options' => [
+                'track_broadcasts' => true,
+                'track_subscriptions' => true,
+                'track_presence' => true,
+            ],
+        ],
+        
+        'database' => [
+            'enabled' => env('BADDYBUGS_COLLECTORS_DATABASE_ENABLED', true),
+            'options' => [
+                'track_transactions' => true,
+                'track_connection_pool' => true,
+                'transaction_threshold_ms' => 5000,
+            ],
+        ],
+        
+        'filesystem' => [
+            'enabled' => env('BADDYBUGS_COLLECTORS_FILESYSTEM_ENABLED', false),
+            'options' => [
+                'track_disk_usage' => true,
+                'slow_threshold_ms' => 100,
+                'disks' => ['local', 'public'],
+            ],
+        ],
+        
+        'llm' => [
+            'enabled' => env('BADDYBUGS_COLLECTORS_LLM_ENABLED', true),
+        ],
+        
+        'memory' => [
+            'enabled' => env('BADDYBUGS_COLLECTORS_MEMORY_ENABLED', false),
+        ],
+        
+        'rate_limit' => [
+            'enabled' => env('BADDYBUGS_COLLECTORS_RATE_LIMIT_ENABLED', true),
+        ],
+        
+        'routes' => [
+            'enabled' => env('BADDYBUGS_COLLECTORS_ROUTES_ENABLED', true),
+            'options' => [
+                'track_404_patterns' => true,
+                'track_redirect_chains' => true,
+                'track_route_model_binding' => true,
+            ],
+        ],
+        
+        'session' => [
+            'enabled' => env('BADDYBUGS_COLLECTORS_SESSION_ENABLED', true),
+        ],
+        
+        'translations' => [
+            'enabled' => env('BADDYBUGS_COLLECTORS_TRANSLATIONS_ENABLED', false),
+            'options' => [
+                'track_missing' => true,
+            ],
+        ],
+        
+        'validation' => [
+            'enabled' => env('BADDYBUGS_COLLECTORS_VALIDATION_ENABLED', true),
+        ],
+        
+        'handled_exceptions' => [
+            'enabled' => env('BADDYBUGS_COLLECTORS_HANDLED_EXCEPTIONS_ENABLED', true),
+        ],
     ],
 
     /*
@@ -664,6 +747,14 @@ return [
      * - full: everything including breadcrumbs
      */
     'timeline_detail_level' => env('BADDYBUGS_TIMELINE_DETAIL_LEVEL', 'detailed'),
+
+    /*
+     * Enable HTTP lifecycle tracking
+     * Captures complete request lifecycle phases:
+     * Bootstrap → Routing → Middleware → Controller → Response → Terminate
+     * Essential for waterfall visualization
+     */
+    'lifecycle_tracking_enabled' => env('BADDYBUGS_LIFECYCLE_TRACKING_ENABLED', true),
 
     /*
     |--------------------------------------------------------------------------
