@@ -5,7 +5,7 @@ namespace BaddyBugs\Agent\Collectors;
 use BaddyBugs\Agent\BaddyBugs;
 use Illuminate\Support\Facades\Event;
 
-class LLMCollector
+class LLMCollector implements CollectorInterface
 {
     /**
      * Boot the collector.

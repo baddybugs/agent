@@ -84,8 +84,26 @@ class BaddyBugsAgentServiceProvider extends ServiceProvider
         
         // Boot Timeline Collector if enabled
         $this->bootTimelineCollector();
-
-
+        
+        // Boot new collectors
+        $this->bootAuthCollector();
+        $this->bootBroadcastCollector();
+        $this->bootRateLimitCollector();
+        $this->bootSessionCollector();
+        $this->bootTranslationCollector();
+        $this->bootRouteCollector();
+        $this->bootValidationCollector();
+        $this->bootFilesystemCollector();
+        $this->bootDatabaseCollector();
+        $this->bootThreatCollector();
+        $this->bootMemoryCollector();
+        $this->bootEloquentCollector();
+        $this->bootFormCollector();
+        $this->bootFileUploadCollector();
+        $this->bootQueueMetricsCollector();
+        $this->bootLLMCollector();
+        $this->bootHandledExceptionCollector();
+        $this->bootLifecycleCollector();
     }
 
     /**
@@ -298,6 +316,312 @@ class BaddyBugsAgentServiceProvider extends ServiceProvider
 
         try {
             $collector = $this->app->make(Collectors\TimelineCollector::class);
+            $collector->boot();
+        } catch (\Throwable $e) {
+            // Silent failure
+        }
+    }
+
+    /**
+     * Register the Auth Collector
+     */
+    protected function bootAuthCollector(): void
+    {
+        if (!config('baddybugs.collectors.auth.enabled', true)) {
+            return;
+        }
+
+        try {
+            $collector = $this->app->make(Collectors\AuthCollector::class);
+            $collector->boot();
+        } catch (\Throwable $e) {
+            // Silent failure
+        }
+    }
+
+    /**
+     * Register the Broadcast Collector
+     */
+    protected function bootBroadcastCollector(): void
+    {
+        if (!config('baddybugs.collectors.broadcast.enabled', false)) {
+            return;
+        }
+
+        try {
+            $collector = $this->app->make(Collectors\BroadcastCollector::class);
+            $collector->boot();
+        } catch (\Throwable $e) {
+            // Silent failure
+        }
+    }
+
+    /**
+     * Register the Rate Limit Collector
+     */
+    protected function bootRateLimitCollector(): void
+    {
+        if (!config('baddybugs.collectors.rate_limit.enabled', true)) {
+            return;
+        }
+
+        try {
+            $collector = $this->app->make(Collectors\RateLimitCollector::class);
+            $collector->boot();
+        } catch (\Throwable $e) {
+            // Silent failure
+        }
+    }
+
+    /**
+     * Register the Session Collector
+     */
+    protected function bootSessionCollector(): void
+    {
+        if (!config('baddybugs.collectors.session.enabled', true)) {
+            return;
+        }
+
+        try {
+            $collector = $this->app->make(Collectors\SessionCollector::class);
+            $collector->boot();
+        } catch (\Throwable $e) {
+            // Silent failure
+        }
+    }
+
+    /**
+     * Register the Translation Collector
+     */
+    protected function bootTranslationCollector(): void
+    {
+        if (!config('baddybugs.collectors.translations.enabled', false)) {
+            return;
+        }
+
+        try {
+            $collector = $this->app->make(Collectors\TranslationCollector::class);
+            $collector->boot();
+        } catch (\Throwable $e) {
+            // Silent failure
+        }
+    }
+
+    /**
+     * Register the Route Collector
+     */
+    protected function bootRouteCollector(): void
+    {
+        if (!config('baddybugs.collectors.routes.enabled', true)) {
+            return;
+        }
+
+        try {
+            $collector = $this->app->make(Collectors\RouteCollector::class);
+            $collector->boot();
+        } catch (\Throwable $e) {
+            // Silent failure
+        }
+    }
+
+    /**
+     * Register the Validation Collector
+     */
+    protected function bootValidationCollector(): void
+    {
+        if (!config('baddybugs.collectors.validation.enabled', true)) {
+            return;
+        }
+
+        try {
+            $collector = $this->app->make(Collectors\ValidationCollector::class);
+            $collector->boot();
+        } catch (\Throwable $e) {
+            // Silent failure
+        }
+    }
+
+    /**
+     * Register the Filesystem Collector
+     */
+    protected function bootFilesystemCollector(): void
+    {
+        if (!config('baddybugs.collectors.filesystem.enabled', false)) {
+            return;
+        }
+
+        try {
+            $collector = $this->app->make(Collectors\FilesystemCollector::class);
+            $collector->boot();
+        } catch (\Throwable $e) {
+            // Silent failure
+        }
+    }
+
+    /**
+     * Register the Database Collector
+     */
+    protected function bootDatabaseCollector(): void
+    {
+        if (!config('baddybugs.collectors.database.enabled', true)) {
+            return;
+        }
+
+        try {
+            $collector = $this->app->make(Collectors\DatabaseCollector::class);
+            $collector->boot();
+        } catch (\Throwable $e) {
+            // Silent failure
+        }
+    }
+
+    /**
+     * Register the Threat Collector
+     */
+    protected function bootThreatCollector(): void
+    {
+        if (!config('baddybugs.threat_detection_enabled', true)) {
+            return;
+        }
+
+        try {
+            $collector = $this->app->make(Collectors\ThreatCollector::class);
+            $collector->boot();
+        } catch (\Throwable $e) {
+            // Silent failure
+        }
+    }
+
+    /**
+     * Register the Memory Collector
+     */
+    protected function bootMemoryCollector(): void
+    {
+        if (!config('baddybugs.collectors.memory.enabled', false)) {
+            return;
+        }
+
+        try {
+            $collector = $this->app->make(Collectors\MemoryCollector::class);
+            $collector->boot();
+        } catch (\Throwable $e) {
+            // Silent failure
+        }
+    }
+
+    /**
+     * Register the Eloquent Collector
+     */
+    protected function bootEloquentCollector(): void
+    {
+        if (!config('baddybugs.eloquent_tracking_enabled', true)) {
+            return;
+        }
+
+        try {
+            $collector = $this->app->make(Collectors\EloquentCollector::class);
+            $collector->boot();
+        } catch (\Throwable $e) {
+            // Silent failure
+        }
+    }
+
+    /**
+     * Register the Form Collector
+     */
+    protected function bootFormCollector(): void
+    {
+        if (!config('baddybugs.form_tracking_enabled', true)) {
+            return;
+        }
+
+        try {
+            $collector = $this->app->make(Collectors\FormCollector::class);
+            $collector->boot();
+        } catch (\Throwable $e) {
+            // Silent failure
+        }
+    }
+
+    /**
+     * Register the File Upload Collector
+     */
+    protected function bootFileUploadCollector(): void
+    {
+        if (!config('baddybugs.file_upload_tracking_enabled', true)) {
+            return;
+        }
+
+        try {
+            $collector = $this->app->make(Collectors\FileUploadCollector::class);
+            $collector->boot();
+        } catch (\Throwable $e) {
+            // Silent failure
+        }
+    }
+
+    /**
+     * Register the Queue Metrics Collector
+     */
+    protected function bootQueueMetricsCollector(): void
+    {
+        if (!config('baddybugs.queue_metrics_enabled', true)) {
+            return;
+        }
+
+        try {
+            $collector = $this->app->make(Collectors\QueueMetricsCollector::class);
+            $collector->boot();
+        } catch (\Throwable $e) {
+            // Silent failure
+        }
+    }
+
+    /**
+     * Register the LLM Collector
+     */
+    protected function bootLLMCollector(): void
+    {
+        if (!config('baddybugs.collectors.llm.enabled', true)) {
+            return;
+        }
+
+        try {
+            $collector = $this->app->make(Collectors\LLMCollector::class);
+            $collector->boot();
+        } catch (\Throwable $e) {
+            // Silent failure
+        }
+    }
+
+    /**
+     * Register the Handled Exception Collector
+     */
+    protected function bootHandledExceptionCollector(): void
+    {
+        if (!config('baddybugs.collectors.handled_exceptions.enabled', true)) {
+            return;
+        }
+
+        try {
+            $collector = $this->app->make(Collectors\HandledExceptionCollector::class);
+            $collector->boot();
+        } catch (\Throwable $e) {
+            // Silent failure
+        }
+    }
+
+    /**
+     * Register the Lifecycle Collector
+     */
+    protected function bootLifecycleCollector(): void
+    {
+        if (!config('baddybugs.lifecycle_tracking_enabled', true)) {
+            return;
+        }
+
+        try {
+            $collector = $this->app->make(Collectors\LifecycleCollector::class);
             $collector->boot();
         } catch (\Throwable $e) {
             // Silent failure
