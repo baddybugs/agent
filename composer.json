@@ -36,7 +36,10 @@
     "autoload": {
         "psr-4": {
             "BaddyBugs\\Agent\\": "src/"
-        }
+        },
+        "files": [
+            "src/helpers.php"
+        ]
     },
     "extra": {
         "laravel": {

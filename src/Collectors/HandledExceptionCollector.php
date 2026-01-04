@@ -14,33 +14,8 @@ class HandledExceptionCollector implements CollectorInterface
 {
     public function boot(): void
     {
-        // Register custom exception handler hook  
-        $this->registerExceptionHandler();
-    }
-
-    /**
-     * Register handler for caught exceptions
-     */
-    protected function registerExceptionHandler(): void
-    {
-        // We need to hook into error_get_last() or use xdebug if available
-        // For production, we'll track manually reported exceptions
-        
-        // Create a helper function users can call
-        if (!function_exists('reportHandledException')) {
-            /**
-             * Report a handled exception to Baddybugs
-             */
-            function reportHandledException(\Throwable $exception, array $context = []): void
-            {
-                try {
-                    $collector = app(HandledExceptionCollector::class);
-                    $collector->trackHandledException($exception, $context);
-                } catch (\Throwable $e) {
-                    // Silent fail
-                }
-            }
-        }
+        // Helper function is now autoloaded via src/helpers.php
+        // No additional setup needed
     }
 
     /**

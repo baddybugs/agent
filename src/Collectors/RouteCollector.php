@@ -31,6 +31,11 @@ class RouteCollector implements CollectorInterface
             return;
         }
 
+        // Skip in console - no routes in CLI
+        if (app()->runningInConsole()) {
+            return;
+        }
+
         $this->track404Patterns();
         $this->trackRedirects();
         $this->trackModelBinding();

@@ -13,7 +13,7 @@ class LLMCollector implements CollectorInterface
      * manually or via a wrapper, rather than listening to framework events directly
      * since LLM libraries (OpenAI, etc) don't emit standard Laravel events.
      */
-    public function boot()
+    public function boot(): void
     {
         // No auto-listeners for now.
     }

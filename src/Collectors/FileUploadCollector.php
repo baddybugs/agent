@@ -34,6 +34,11 @@ class FileUploadCollector implements CollectorInterface
             return;
         }
 
+        // Skip in console - no file uploads
+        if (app()->runningInConsole()) {
+            return;
+        }
+
         // Track via request terminating
         app()->terminating(function () {
             $this->collectUploads();
@@ -42,7 +47,15 @@ class FileUploadCollector implements CollectorInterface
 
     protected function collectUploads(): void
     {
-        $request = request();
+        // Safe request access
+        try {
+            if (app()->runningInConsole() && !app()->bound('request')) {
+                return;
+            }
+            $request = app('request');
+        } catch (\Throwable $e) {
+            return;
+        }
         
         if (!$request->hasFile(array_keys($request->allFiles()))) {
             return;

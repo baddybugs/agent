@@ -31,6 +31,11 @@ class FormCollector implements CollectorInterface
             return;
         }
 
+        // Skip in console - no request/forms available
+        if (app()->runningInConsole()) {
+            return;
+        }
+
         // Track validation failures
         Validator::resolver(function ($translator, $data, $rules, $messages, $customAttributes) {
             return new class($translator, $data, $rules, $messages, $customAttributes) extends \Illuminate\Validation\Validator {

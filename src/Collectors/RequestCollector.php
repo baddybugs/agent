@@ -14,6 +14,11 @@ class RequestCollector implements CollectorInterface
 
     public function boot(): void
     {
+        // Skip in console - no HTTP requests in CLI
+        if (app()->runningInConsole()) {
+            return;
+        }
+
         // Start memory profiling at boot
         if (config('baddybugs.memory_profiling_enabled', true)) {
             $this->memoryProfiler = new MemoryProfiler();

@@ -72,6 +72,11 @@ class LifecycleCollector implements CollectorInterface
         if (!config('baddybugs.lifecycle_tracking_enabled', true)) {
             return;
         }
+        
+        // Skip in console - no request/response bindings available
+        if (app()->runningInConsole()) {
+            return;
+        }
 
         $this->bootstrapEnd = microtime(true);
         

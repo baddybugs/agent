@@ -32,6 +32,11 @@ class ValidationCollector implements CollectorInterface
             return;
         }
 
+        // Skip in console - no web forms in CLI
+        if (app()->runningInConsole()) {
+            return;
+        }
+
         $this->registerValidatorHook();
 
         app()->terminating(function () {

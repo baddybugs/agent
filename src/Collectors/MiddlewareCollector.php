@@ -35,6 +35,11 @@ class MiddlewareCollector implements CollectorInterface
             return;
         }
 
+        // Skip in console - no middleware in CLI
+        if (app()->runningInConsole()) {
+            return;
+        }
+
         $this->trackMiddlewareExecution();
         $this->trackRequestCompleted();
     }
