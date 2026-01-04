@@ -1,6 +1,6 @@
 # 📦 BaddyBugs Agent - Inventaire Complet des Collectors
 
-**Version:** 1.0.0  
+**Version:** 1.0.2  
 **Nombre de Collectors:** 42  
 **Date de mise à jour:** 04 janvier 2026
 
@@ -62,7 +62,7 @@
 - **HttpClientCollector** - Requêtes HTTP sortantes (Guzzle)
 - **RouteCollector** - Analytics de routes (404, redirects, model binding)
 - **RateLimitCollector** - Rate limiting et throttling
-- **LifecycleCollector** ⭐ - **Lifecycle complet HTTP (waterfall)**
+- **LifecycleCollector** ⭐ - **Lifecycle complet HTTP + Waterfall granulaire (Nightwatch-style)**
 
 ### 🗄️ Database & Cache
 - **QueryCollector** - Requêtes SQL, N+1 detection

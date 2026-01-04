@@ -76,7 +76,7 @@ Tous les événements envoyés par l'agent suivent cette structure de base :
 | `filesystem` | `disk_usage`, `operations` | FilesystemCollector | Opérations fichiers |
 | `database` | `transaction`, `connection_metrics`, `deadlock` | DatabaseCollector | Connexions DB |
 | `memory` | `snapshot` | MemoryCollector | Usage mémoire |
-| `lifecycle` | `http_request` | LifecycleCollector | **Lifecycle complet d'une requête HTTP** |
+| `lifecycle` | `http_request` | LifecycleCollector | **Lifecycle complet + waterfall granulaire (Nightwatch-style)** |
 
 ---
 
@@ -1376,4 +1376,151 @@ Content-Encoding: gzip (si compression activée)
 
 ---
 
-*Document généré automatiquement - BaddyBugs Agent PHP v1.0.0*
+### 45. `lifecycle` - Lifecycle HTTP Complet + Waterfall Granulaire
+
+Le LifecycleCollector capture **le cycle de vie complet** et **chaque événement individuel** avec son offset exact depuis le début de la requête, permettant une visualisation waterfall précise (Nightwatch-style).
+
+```typescript
+interface LifecycleEvent {
+  type: "lifecycle";
+  name: "http_request";
+  data: {
+    trace_id: string;
+    total_duration_ms: number;
+    
+    // Requête principale
+    request: {
+      method: string;
+      url: string;
+      full_url: string;
+      status_code: number;
+    };
+    
+    // Phases principales (pour le header du waterfall)
+    phases: Array<{
+      name: "BOOTSTRAP" | "MIDDLEWARE" | "CONTROLLER";
+      label?: string;  // Pour CONTROLLER: "UserController@show"
+      duration_ms: number;
+      start_offset_ms: number;
+      percentage: number;
+    }>;
+    
+    // Tous les spans individuels (queries, cache, http sortant)
+    spans: Array<{
+      span_id: number;
+      trace_id: string;
+      type: "QUERY" | "CACHE_HIT" | "CACHE_MISS" | "CACHE_WRITE" | "OUTGOING_REQUEST" | "JOB_DISPATCHED";
+      label: string;           // Ex: "select * from users where..."
+      
+      // Timing
+      duration_ms: number;
+      start_offset_ms: number; // Offset depuis le début de la requête
+      
+      // Nesting pour visualisation
+      depth: number;           // 0 = root, 1+ = nested
+      
+      // Données spécifiques au type
+      // Pour QUERY:
+      sql?: string;
+      bindings?: any[];
+      connection?: string;
+      
+      // Pour CACHE_*:
+      key?: string;
+      
+      // Pour OUTGOING_REQUEST:
+      method?: string;
+      url?: string;
+      status_code?: number;
+      
+      // Pour JOB_DISPATCHED:
+      job_class?: string;
+      connection?: string;
+    }>;
+    
+    // Compteurs
+    counts: {
+      queries: number;
+      cache_hits: number;
+      cache_misses: number;
+      cache_writes: number;
+      outgoing_requests: number;
+      jobs_dispatched: number;
+    };
+    
+    // Route info
+    route: {
+      name: string | null;
+      uri: string;
+      methods: string[];
+      parameters: string[];
+    };
+    
+    // Controller info
+    controller: {
+      class: string;
+      action: string;
+      full: string;
+    };
+    
+    // Middleware
+    middleware: {
+      global: string[];
+      route: string[];
+      total_count: number;
+    };
+    
+    // Performance breakdown
+    breakdown: {
+      bootstrap: { duration_ms: number; percentage: number; };
+      middleware: { duration_ms: number; percentage: number; };
+      controller: { duration_ms: number; percentage: number; };
+    };
+    
+    // Memory
+    memory: {
+      peak_bytes: number;
+      peak_mb: number;
+      current_bytes: number;
+      current_mb: number;
+    };
+    
+    // Environment
+    environment: {
+      php_version: string;
+      laravel_version: string;
+      sapi: string;
+    };
+    
+    timestamp: string; // ISO8601
+  };
+}
+```
+
+#### Exemple de visualisation waterfall
+
+```
+┌─────────────────────────────────────────────────────────────────────────────┐
+│ REQUEST 200 242.31ms /api/v1/ingest                                        │
+├─────────────────────────────────────────────────────────────────────────────┤
+│ ▓▓ BOOTSTRAP 20.6ms                                                         │
+│ ▓▓▓▓▓ MIDDLEWARE 59.17ms                                                    │
+│   ○ CACHE MISS 22.56ms baddybugs:new_deployment                            │
+│   ○ QUERY 20.08ms select * from "cache" where "key" in (?)                 │
+│     ○ QUERY 3ms select * from "api_keys" where "key" = ?...                │
+│       ○ QUERY 3.56ms select * from "environments"...                        │
+│         ○ QUERY 3.43ms select * from "applications"...                      │
+│           ○ QUERY 2.92ms select * from "organizations"...                   │
+│ ▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓ CONTROLLER 142.94ms App\Http\Controllers\Api\IngestCtrl   │
+│   ● CACHE HIT 5.02ms ingest:8l9dskf8-8ofo-71f4-85fb-722173%...             │
+│   ○ QUERY 3.35ms select * from "cache" where "key" in (?)                  │
+│   ○ QUERY 2.55ms select * from "cache" where "key" in (?)                  │
+│     → OUTGOING REQUEST 8.7ms POST http://localhost:8123/?database=baddybugs│
+│       → OUTGOING REQUEST 8.5ms POST http://localhost:8123/?database=...    │
+│         → OUTGOING REQUEST 7ms POST http://localhost:8123/?database=...    │
+└─────────────────────────────────────────────────────────────────────────────┘
+```
+
+---
+
+*Document généré automatiquement - BaddyBugs Agent PHP v1.0.2*

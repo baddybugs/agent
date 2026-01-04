@@ -752,7 +752,9 @@ return [
      * Enable HTTP lifecycle tracking
      * Captures complete request lifecycle phases:
      * Bootstrap → Routing → Middleware → Controller → Response → Terminate
-     * Essential for waterfall visualization
+     * Essential for waterfall visualization.
+     * Captures every query, cache op, and outgoing request with exact timing.
+     * Provides granular timeline for each request.
      */
     'lifecycle_tracking_enabled' => env('BADDYBUGS_LIFECYCLE_TRACKING_ENABLED', true),
 

@@ -629,4 +629,3 @@ class BaddyBugsAgentServiceProvider extends ServiceProvider
     }
 
 }
-
