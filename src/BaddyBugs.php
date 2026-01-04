@@ -77,6 +77,11 @@ class BaddyBugs
     protected $urlRedactor = null;
 
     /**
+     * Notification filter callback.
+     */
+    protected $notificationFilter = null;
+
+    /**
      * Shared context to be attached to all events.
      */
     protected array $sharedContext = [];
