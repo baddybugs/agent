@@ -35,6 +35,11 @@ class SecurityCollector implements CollectorInterface
             return;
         }
 
+        // Skip in console - security scanning is for web requests
+        if (app()->runningInConsole()) {
+            return;
+        }
+
         // Scan requests for security issues using proper Laravel event
         app('events')->listen(RequestHandled::class, function (RequestHandled $event) {
             try {

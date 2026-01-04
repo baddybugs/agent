@@ -34,6 +34,11 @@ class FeatureCollector implements CollectorInterface
             return;
         }
 
+        // Skip in console - feature tracking is for web requests
+        if (app()->runningInConsole()) {
+            return;
+        }
+
         // Auto-track routes
         if (config('baddybugs.feature_track_routes', true)) {
             $this->trackRoutes();

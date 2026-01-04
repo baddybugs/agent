@@ -31,6 +31,11 @@ class BroadcastCollector implements CollectorInterface
             return;
         }
 
+        // Skip in console - no websocket in CLI
+        if (app()->runningInConsole()) {
+            return;
+        }
+
         $this->trackBroadcasts();
         $this->trackSubscriptions();
         $this->trackPresenceChannels();

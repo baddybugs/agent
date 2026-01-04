@@ -32,6 +32,11 @@ class TranslationCollector implements CollectorInterface
             return;
         }
 
+        // Skip in console - translations in CLI are different
+        if (app()->runningInConsole()) {
+            return;
+        }
+
         $this->trackMissingTranslations();
         $this->trackLocaleChanges();
 

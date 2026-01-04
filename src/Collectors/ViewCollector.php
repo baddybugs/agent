@@ -33,6 +33,11 @@ class ViewCollector implements CollectorInterface
             return;
         }
 
+        // Skip in console - no views in CLI
+        if (app()->runningInConsole()) {
+            return;
+        }
+
         $this->trackViewComposing();
         $this->trackViewRendering();
     }

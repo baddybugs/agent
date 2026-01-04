@@ -31,6 +31,11 @@ class ThreatCollector implements CollectorInterface
             return;
         }
 
+        // Skip in console - no request available
+        if (app()->runningInConsole()) {
+            return;
+        }
+
         app()->terminating(function () {
             $this->analyzeRequest();
         });
@@ -38,7 +43,16 @@ class ThreatCollector implements CollectorInterface
 
     protected function analyzeRequest(): void
     {
-        $request = request();
+        // Safe request access
+        try {
+            if (app()->runningInConsole() && !app()->bound('request')) {
+                return;
+            }
+            $request = app('request');
+        } catch (\Throwable $e) {
+            return;
+        }
+        
         $threats = [];
 
         // SQL Injection detection

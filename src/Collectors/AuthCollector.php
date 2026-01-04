@@ -43,6 +43,11 @@ class AuthCollector implements CollectorInterface
             return;
         }
 
+        // Skip in console - auth events in CLI have no request context
+        if (app()->runningInConsole()) {
+            return;
+        }
+
         $this->trackLogins();
         $this->trackLogouts();
         $this->trackFailedAttempts();

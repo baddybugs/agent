@@ -34,6 +34,11 @@ class SessionCollector implements CollectorInterface
             return;
         }
 
+        // Skip in console - no session in CLI
+        if (app()->runningInConsole()) {
+            return;
+        }
+
         $this->trackSessionMetrics();
     }
 

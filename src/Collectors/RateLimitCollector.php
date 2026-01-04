@@ -32,6 +32,11 @@ class RateLimitCollector implements CollectorInterface
             return;
         }
 
+        // Skip in console - no request/response available
+        if (app()->runningInConsole()) {
+            return;
+        }
+
         $this->trackThrottleMiddleware();
         $this->trackOnTerminate();
     }
@@ -69,8 +74,21 @@ class RateLimitCollector implements CollectorInterface
 
     protected function collectRateLimitMetrics(): void
     {
-        $request = request();
-        $response = app('response') ?? null;
+        // Safe request access
+        try {
+            if (app()->runningInConsole() && !app()->bound('request')) {
+                return;
+            }
+            $request = app('request');
+        } catch (\Throwable $e) {
+            return;
+        }
+        
+        try {
+            $response = app()->bound('response') ? app('response') : null;
+        } catch (\Throwable $e) {
+            $response = null;
+        }
         
         // Check for rate limit headers in response
         if ($response && method_exists($response, 'headers')) {

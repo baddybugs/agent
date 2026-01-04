@@ -35,6 +35,11 @@ class TimelineCollector implements CollectorInterface
         if (!config('baddybugs.timeline_enabled', true)) {
             return;
         }
+        
+        // Skip in console - no request context available
+        if (app()->runningInConsole()) {
+            return;
+        }
 
         $this->trackTimelineEvents();
     }
@@ -62,10 +67,23 @@ class TimelineCollector implements CollectorInterface
 
     protected function trackMajorEvents(): void
     {
-        // Request start
+        // Request start - use safe access to avoid console errors
+        $url = 'console';
+        $method = 'CLI';
+        
+        try {
+            if (!app()->runningInConsole() || app()->bound('request')) {
+                $request = app('request');
+                $url = $request->fullUrl();
+                $method = $request->method();
+            }
+        } catch (\Throwable $e) {
+            // Silent fail
+        }
+        
         $this->addTimelineEvent('request', 'started', [
-            'url' => request()->fullUrl(),
-            'method' => request()->method(),
+            'url' => $url,
+            'method' => $method,
         ], $this->requestStartTime);
 
         // Route matched
