@@ -25,8 +25,12 @@ class FileBuffer implements BufferInterface
         $this->ttlSeconds = config('baddybugs.buffer_ttl', 60 * 60); // 1 hour fallback
         
         if (!file_exists($this->path)) {
-            if (!@mkdir($this->path, 0755, true)) {
-                \Illuminate\Support\Facades\Log::error("BaddyBugs: Failed to create buffer directory: {$this->path}. Check permissions.");
+            // Force 0777 (World Writable) to ensure CLI (root) and Web (www-data) can both write
+            // regardless of who created the directory first.
+            if (@mkdir($this->path, 0777, true)) {
+                @chmod($this->path, 0777);
+            } else {
+                \Illuminate\Support\Facades\Log::error("BaddyBugs: Failed to create buffer directory: {$this->path}.");
             }
         }
         
@@ -41,6 +45,8 @@ class FileBuffer implements BufferInterface
             $this->rotate();
         }
         
+        $isNewFile = !file_exists($this->filename);
+
         // Write the event
         $line = json_encode($entry, JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES);
         if ($line !== false) {
@@ -50,6 +56,9 @@ class FileBuffer implements BufferInterface
                 
                 if ($result === false) {
                     \Illuminate\Support\Facades\Log::error("BaddyBugs: Failed to write to buffer file: {$this->filename}. Check permissions.");
+                } elseif ($isNewFile) {
+                    // Ensure the file is writable by everyone (CLI vs Web user)
+                    @chmod($this->filename, 0666);
                 }
             } catch (\Throwable $e) {
                 \Illuminate\Support\Facades\Log::error("BaddyBugs FileBuffer Error: " . $e->getMessage());
