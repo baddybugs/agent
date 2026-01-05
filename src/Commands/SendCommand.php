@@ -9,7 +9,7 @@ class SendCommand extends Command
 {
     protected $signature = 'baddybugs:send
                             {--limit=1000}
-                            {--batch=500 : Number of events per batch}
+                            {--batch=50 : Number of events per batch}
                             {--force}
                             {--max-retries=3}';
     protected $description = "Send buffered events from local storage to BaddyBugs";
@@ -130,7 +130,7 @@ class SendCommand extends Command
                     // Store failed events for potential retry or logging
                     $failedEvents = array_merge($failedEvents, $batch);
                     $this->warn(
-                        "Failed to send batch after {$this->maxRetries} retries. Events lost: {$count}",
+                        "Failed to send batch after {$this->maxRetries} retries. Queuing for retry: {$count}",
                     );
                 }
 
@@ -177,6 +177,7 @@ class SendCommand extends Command
     protected function saveFailedEvents(array $events, string $path): void
     {
         $filename = $path . "/events.jsonl";
+        $isNewFile = !file_exists($filename);
 
         foreach ($events as $event) {
             $line = json_encode(
@@ -184,11 +185,16 @@ class SendCommand extends Command
                 JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES,
             );
             if ($line !== false) {
-                @file_put_contents(
+                if (@file_put_contents(
                     $filename,
                     $line . PHP_EOL,
                     FILE_APPEND | LOCK_EX,
-                );
+                ) !== false) {
+                    if ($isNewFile) {
+                        @chmod($filename, 0666);
+                        $isNewFile = false; // Only chmod once
+                    }
+                }
             }
         }
     }
