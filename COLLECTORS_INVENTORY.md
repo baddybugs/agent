@@ -1,8 +1,8 @@
 # 📦 BaddyBugs Agent - Inventaire Complet des Collectors
 
-**Version:** 1.0.2  
-**Nombre de Collectors:** 42  
-**Date de mise à jour:** 04 janvier 2026
+**Version:** 1.0.3  
+**Nombre de Collectors:** 47  
+**Date de mise à jour:** 05 janvier 2026
 
 ---
 
@@ -10,48 +10,53 @@
 
 | # | Collector | Fichier | Activé par Défaut | Clé de Config |
 |---|-----------|---------|-------------------|---------------|
-| 1 | AuthCollector | ✅ | Oui | `collectors.auth.enabled` |
-| 2 | BroadcastCollector | ✅ | Non | `collectors.broadcast.enabled` |
-| 3 | CacheCollector | ✅ | Oui | Via BaddyBugs::bootCollectors |
-| 4 | CommandCollector | ✅ | Oui | Via BaddyBugs::bootCollectors |
-| 5 | DatabaseCollector | ✅ | Oui | `collectors.database.enabled` |
-| 6 | EloquentCollector | ✅ | Oui | `eloquent_tracking_enabled` |
-| 7 | EventCollector | ✅ | Oui | Via BaddyBugs::bootCollectors |
-| 8 | ExceptionCollector | ✅ | Oui | Via BaddyBugs::bootCollectors |
-| 9 | FeatureCollector | ✅ | Oui | `feature_tracking_enabled` |
-| 10 | FileUploadCollector | ✅ | Oui | `file_upload_tracking_enabled` |
-| 11 | FilesystemCollector | ✅ | Non | `collectors.filesystem.enabled` |
-| 12 | FormCollector | ✅ | Oui | `form_tracking_enabled` |
-| 13 | GateCollector | ✅ | Oui | Via BaddyBugs::bootCollectors |
-| 14 | HandledExceptionCollector | ✅ | Oui | `collectors.handled_exceptions.enabled` |
-| 15 | HealthCollector | ✅ | Oui | `health_monitoring_enabled` |
-| 16 | HttpClientCollector | ✅ | Oui | Via BaddyBugs::bootCollectors |
-| 17 | JobCollector | ✅ | Oui | Via BaddyBugs::bootCollectors |
-| 18 | **LifecycleCollector** ⭐ | ✅ | Oui | `lifecycle_tracking_enabled` |
-| 19 | LLMCollector | ✅ | Oui | `collectors.llm.enabled` |
-| 20 | LivewireCollector | ✅ | Non | `livewire_monitoring_enabled` |
-| 21 | LogCollector | ✅ | Oui | Via BaddyBugs::bootCollectors |
-| 22 | MailCollector | ✅ | Oui | Via BaddyBugs::bootCollectors |
-| 23 | MemoryCollector | ✅ | Non | `collectors.memory.enabled` |
-| 24 | MiddlewareCollector | ✅ | Oui | `track_middleware_timing` |
-| 25 | ModelCollector | ✅ | Oui | Via BaddyBugs::bootCollectors |
-| 26 | NotificationCollector | ✅ | Oui | Via BaddyBugs::bootCollectors |
-| 27 | ProfilingCollector | ✅ | Oui | Via BaddyBugs::bootCollectors |
-| 28 | QueryCollector | ✅ | Oui | Via BaddyBugs::bootCollectors |
-| 29 | QueueMetricsCollector | ✅ | Oui | `queue_metrics_enabled` |
-| 30 | RateLimitCollector | ✅ | Oui | `collectors.rate_limit.enabled` |
-| 31 | RedisCollector | ✅ | Oui | Via BaddyBugs::bootCollectors |
-| 32 | RequestCollector | ✅ | Oui | Via BaddyBugs::bootCollectors |
-| 33 | RouteCollector | ✅ | Oui | `collectors.routes.enabled` |
-| 34 | ScheduledTaskCollector | ✅ | Oui | Via BaddyBugs::bootCollectors |
-| 35 | SecurityCollector | ✅ | Oui | `security_enabled` |
-| 36 | SessionCollector | ✅ | Oui | `collectors.session.enabled` |
-| 37 | TestCollector | ✅ | Non | `collectors.test` |
-| 38 | ThreatCollector | ✅ | Oui | `threat_detection_enabled` |
-| 39 | TimelineCollector | ✅ | Oui | `timeline_enabled` |
-| 40 | TranslationCollector | ✅ | Non | `collectors.translations.enabled` |
-| 41 | ValidationCollector | ✅ | Oui | `collectors.validation.enabled` |
-| 42 | ViewCollector | ✅ | Oui | `track_view_rendering` |
+| 1 | AdvancedEloquentCollector | ✅ | Non | `collectors.advanced_eloquent.enabled` |
+| 2 | AuthCollector | ✅ | Oui | `collectors.auth.enabled` |
+| 3 | BroadcastCollector | ✅ | Non | `collectors.broadcast.enabled` |
+| 4 | CacheCollector | ✅ | Oui | Via BaddyBugs::bootCollectors |
+| 5 | CommandCollector | ✅ | Oui | Via BaddyBugs::bootCollectors |
+| 6 | DatabaseCollector | ✅ | Oui | `collectors.database.enabled` |
+| 7 | EloquentCollector | ✅ | Oui | `eloquent_tracking_enabled` |
+| 8 | EncryptionCollector | ✅ | Non | `collectors.encryption.enabled` |
+| 9 | EventCollector | ✅ | Oui | Via BaddyBugs::bootCollectors |
+| 10 | ExceptionCollector | ✅ | Oui | Via BaddyBugs::bootCollectors |
+| 11 | FeatureCollector | ✅ | Oui | `feature_tracking_enabled` |
+| 12 | FileUploadCollector | ✅ | Oui | `file_upload_tracking_enabled` |
+| 13 | FilesystemCollector | ✅ | Non | `collectors.filesystem.enabled` |
+| 14 | FormCollector | ✅ | Oui | `form_tracking_enabled` |
+| 15 | GateCollector | ✅ | Oui | Via BaddyBugs::bootCollectors |
+| 16 | HandledExceptionCollector | ✅ | Oui | `collectors.handled_exceptions.enabled` |
+| 17 | HashingCollector | ✅ | Non | `collectors.hashing.enabled` |
+| 18 | HealthCollector | ✅ | Oui | `health_monitoring_enabled` |
+| 19 | HttpClientCollector | ✅ | Oui | Via BaddyBugs::bootCollectors |
+| 20 | JobCollector | ✅ | Oui | Via BaddyBugs::bootCollectors |
+| 21 | **LifecycleCollector** ⭐ | ✅ | Oui | `lifecycle_tracking_enabled` |
+| 22 | LLMCollector | ✅ | Oui | `collectors.llm.enabled` |
+| 23 | LivewireCollector | ✅ | Non | `livewire_monitoring_enabled` |
+| 24 | LogCollector | ✅ | Oui | Via BaddyBugs::bootCollectors |
+| 25 | MailCollector | ✅ | Oui | Via BaddyBugs::bootCollectors |
+| 26 | MemoryCollector | ✅ | Non | `collectors.memory.enabled` |
+| 27 | MiddlewareCollector | ✅ | Oui | `track_middleware_timing` |
+| 28 | ModelCollector | ✅ | Oui | Via BaddyBugs::bootCollectors |
+| 29 | NotificationCollector | ✅ | Oui | Via BaddyBugs::bootCollectors |
+| 30 | ObserverCollector | ✅ | Non | `collectors.observers.enabled` |
+| 31 | ProfilingCollector | ✅ | Oui | Via BaddyBugs::bootCollectors |
+| 32 | QueryBuilderCollector | ✅ | Oui | `collectors.query_builder.enabled` |
+| 33 | QueryCollector | ✅ | Oui | Via BaddyBugs::bootCollectors |
+| 34 | QueueMetricsCollector | ✅ | Oui | `queue_metrics_enabled` |
+| 35 | RateLimitCollector | ✅ | Oui | `collectors.rate_limit.enabled` |
+| 36 | RedisCollector | ✅ | Oui | Via BaddyBugs::bootCollectors |
+| 37 | RequestCollector | ✅ | Oui | Via BaddyBugs::bootCollectors |
+| 38 | RouteCollector | ✅ | Oui | `collectors.routes.enabled` |
+| 39 | ScheduledTaskCollector | ✅ | Oui | Via BaddyBugs::bootCollectors |
+| 40 | SecurityCollector | ✅ | Oui | `security_enabled` |
+| 41 | SessionCollector | ✅ | Oui | `collectors.session.enabled` |
+| 42 | TestCollector | ✅ | Non | `collectors.test` |
+| 43 | ThreatCollector | ✅ | Oui | `threat_detection_enabled` |
+| 44 | TimelineCollector | ✅ | Oui | `timeline_enabled` |
+| 45 | TranslationCollector | ✅ | Non | `collectors.translations.enabled` |
+| 46 | ValidationCollector | ✅ | Oui | `collectors.validation.enabled` |
+| 47 | ViewCollector | ✅ | Oui | `track_view_rendering` |
 
 ---
 
@@ -66,6 +71,7 @@
 
 ### 🗄️ Database & Cache
 - **QueryCollector** - Requêtes SQL, N+1 detection
+- **QueryBuilderCollector** - Analyse avancée Query Builder (types, tables, joins)
 - **DatabaseCollector** - Connexions, transactions, deadlocks
 - **CacheCollector** - Opérations cache (hits, misses)
 - **RedisCollector** - Commandes Redis
@@ -73,6 +79,8 @@
 ### ⚙️ Eloquent & Models
 - **ModelCollector** - Events CRUD sur modèles
 - **EloquentCollector** - Eager/lazy loading, relations
+- **AdvancedEloquentCollector** - Scopes, accessors, mutators, casts
+- **ObserverCollector** - Eloquent Observers tracking
 
 ### 🔔 Jobs & Queue
 - **JobCollector** - Jobs de queue
@@ -89,11 +97,13 @@
 - **NotificationCollector** - Notifications Laravel
 - **BroadcastCollector** - WebSocket/Pusher
 
-### 🔐 Sécurité
+### 🔐 Sécurité & Cryptographie
 - **SecurityCollector** - Scan de sécurité (PII, SQL injection, XSS)
 - **ThreatCollector** - Détection de menaces
 - **GateCollector** - Vérifications d'autorisation
 - **AuthCollector** - Login, logout, 2FA, impersonation
+- **EncryptionCollector** - Opérations encrypt/decrypt
+- **HashingCollector** - Opérations de hashing des mots de passe
 
 ### 🎯 Analytics & Features
 - **FeatureCollector** - Analytics produit

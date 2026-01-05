@@ -196,6 +196,34 @@ return [
         'handled_exceptions' => [
             'enabled' => env('BADDYBUGS_COLLECTORS_HANDLED_EXCEPTIONS_ENABLED', true),
         ],
+        
+        // NEW: Encryption/Decryption tracking
+        'encryption' => [
+            'enabled' => env('BADDYBUGS_COLLECTORS_ENCRYPTION_ENABLED', false),
+            'options' => [
+                'detailed' => false, // Log individual operations (high volume)
+            ],
+        ],
+        
+        // NEW: Advanced Query Builder analytics
+        'query_builder' => [
+            'enabled' => env('BADDYBUGS_COLLECTORS_QUERY_BUILDER_ENABLED', true),
+        ],
+        
+        // NEW: Eloquent Observer tracking
+        'observers' => [
+            'enabled' => env('BADDYBUGS_COLLECTORS_OBSERVERS_ENABLED', false),
+        ],
+        
+        // NEW: Advanced Eloquent tracking (scopes, casts, accessors)
+        'advanced_eloquent' => [
+            'enabled' => env('BADDYBUGS_COLLECTORS_ADVANCED_ELOQUENT_ENABLED', false),
+        ],
+        
+        // NEW: Password hashing tracking
+        'hashing' => [
+            'enabled' => env('BADDYBUGS_COLLECTORS_HASHING_ENABLED', false),
+        ],
     ],
 
     /*

@@ -133,6 +133,8 @@ class BaddyBugs
             'gate' => GateCollector::class,
             'redis' => RedisCollector::class,
             'test' => TestCollector::class,
+            // NEW collectors
+            'query_builder' => Collectors\QueryBuilderCollector::class,
         ];
 
         foreach ($candidates as $key => $class) {
