@@ -55,7 +55,7 @@ class ScheduledTaskCollector implements CollectorInterface
         Event::listen(ScheduledTaskFailed::class, function (ScheduledTaskFailed $event) {
             BaddyBugs::record('scheduled_task', $event->task->command ?? 'unknown', [
                 'event' => 'failed',
-                'runtime' => $event->runtime,
+                'runtime' => property_exists($event, 'runtime') ? $event->runtime : null,
                 'exception' => $event->exception->getMessage(),
                 'trace' => $event->exception->getTraceAsString(),
                 'frequency_seconds' => $this->parseFrequencySeconds($event->task->expression),
