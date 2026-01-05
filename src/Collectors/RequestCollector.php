@@ -14,11 +14,10 @@ class RequestCollector implements CollectorInterface
 
     public function boot(): void
     {
-        // Skip in console - no HTTP requests in CLI
-        if (app()->runningInConsole()) {
-            return;
-        }
-
+        // Note: We don't skip in console mode because servers like Octane/Swoole
+        // boot the app in console mode but then serve HTTP requests.
+        // The event will only fire for actual HTTP requests anyway.
+        
         // Start memory profiling at boot
         if (config('baddybugs.memory_profiling_enabled', true)) {
             $this->memoryProfiler = new MemoryProfiler();

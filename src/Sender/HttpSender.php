@@ -29,6 +29,7 @@ class HttpSender implements SenderInterface
 
         // Rate limiting protection
         if ($this->isRateLimited()) {
+            Log::debug('[BaddyBugs] Rate limited, skipping send');
             return false;
         }
 
@@ -36,8 +37,18 @@ class HttpSender implements SenderInterface
         $apiKey = config('baddybugs.api_key');
 
         if (!$endpoint || !$apiKey) {
+            Log::debug('[BaddyBugs] Missing config', [
+                'endpoint' => $endpoint ? 'set' : 'MISSING',
+                'api_key' => $apiKey ? 'set (' . strlen($apiKey) . ' chars)' : 'MISSING',
+            ]);
             return false;
         }
+
+        Log::debug('[BaddyBugs] Sending batch', [
+            'endpoint' => $endpoint,
+            'event_count' => count($batch),
+            'api_key_length' => strlen($apiKey),
+        ]);
 
         $payload = ['events' => $batch];
         $body = json_encode($payload);
@@ -98,6 +109,11 @@ class HttpSender implements SenderInterface
                     ->withBody($body, $headers['Content-Type'])
                     ->post($endpoint);
 
+                Log::debug('[BaddyBugs] Response received', [
+                    'status' => $response->status(),
+                    'successful' => $response->successful(),
+                ]);
+
                 if ($response->successful()) {
                     return true;
                 }
@@ -106,20 +122,32 @@ class HttpSender implements SenderInterface
                 if ($response->status() === 429) {
                     $retryAfter = $response->header('Retry-After', 60);
                     $this->setRateLimited((int) $retryAfter);
+                    Log::warning('[BaddyBugs] Rate limited by server');
                     return false;
                 }
 
-                // Log non-success but don't retry for 4xx errors (except 429)
+                // Log non-success for 4xx errors (except 429)
                 if ($response->status() >= 400 && $response->status() < 500) {
-                    Log::warning('BaddyBugs: Client error', [
+                    Log::error('[BaddyBugs] Client error', [
                         'status' => $response->status(),
-                        'body' => $response->body()
+                        'body' => substr($response->body(), 0, 500),
+                        'endpoint' => $endpoint,
                     ]);
                     return false;
                 }
 
+                // 5xx errors - log and retry
+                Log::warning('[BaddyBugs] Server error, will retry', [
+                    'status' => $response->status(),
+                    'attempt' => $attempt,
+                ]);
+
             } catch (\Throwable $e) {
                 $lastException = $e;
+                Log::debug('[BaddyBugs] Exception during send', [
+                    'error' => $e->getMessage(),
+                    'attempt' => $attempt,
+                ]);
             }
 
             // Exponential backoff with jitter
