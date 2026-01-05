@@ -8,15 +8,15 @@ use Illuminate\Support\Facades\Cache;
 
 class HttpSender implements SenderInterface
 {
-    protected int $maxRetries = 3;
-    protected float $timeout = 5.0;
+    protected int $maxRetries = 1;
+    protected float $timeout = 2.0;
     protected bool $compress = true;
     protected bool $sign = true;
 
     public function __construct()
     {
-        $this->maxRetries = config('baddybugs.retry_attempts', 3);
-        $this->timeout = config('baddybugs.send_timeout', 5.0);
+        $this->maxRetries = config('baddybugs.retry_attempts', 1);
+        $this->timeout = config('baddybugs.send_timeout', 2.0);
         $this->compress = config('baddybugs.compress', true);
         $this->sign = config('baddybugs.sign_payloads', true);
     }
@@ -130,12 +130,7 @@ class HttpSender implements SenderInterface
             }
         }
 
-        if ($lastException) {
-            Log::error('BaddyBugs: Failed to send after retries', [
-                'error' => $lastException->getMessage()
-            ]);
-        }
-
+        // Silently fail - monitoring should NEVER impact the application
         return false;
     }
 

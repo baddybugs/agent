@@ -30,7 +30,7 @@ class SendCommand extends Command
         $file = $path . '/events.jsonl';
 
         if (!file_exists($file) || filesize($file) === 0) {
-            $this->info("No new buffered events found.");
+            $this->verbose("No new buffered events found.");
             return 0;
         }
 
@@ -41,9 +41,19 @@ class SendCommand extends Command
             return 1;
         }
 
-        $this->info("Processing buffer...");
+        $this->verbose("Processing buffer...");
         
         return $this->processFile($processingFile, $sender);
+    }
+
+    /**
+     * Output only in verbose mode (-v)
+     */
+    protected function verbose(string $message): void
+    {
+        if ($this->getOutput()->isVerbose()) {
+            $this->info($message);
+        }
     }
 
     /**
@@ -64,16 +74,16 @@ class SendCommand extends Command
         // Sort by modification time (oldest first)
         usort($backlogFiles, fn($a, $b) => filemtime($a) - filemtime($b));
 
-        $this->info("Found " . count($backlogFiles) . " backlog files to process...");
+        $this->verbose("Found " . count($backlogFiles) . " backlog files to process...");
 
         foreach ($backlogFiles as $file) {
             // Skip files modified in the last 60 seconds (might be in active writing)
             if (filemtime($file) > time() - 60) {
-                $this->info("Skipping " . basename($file) . " (recently modified)");
+                $this->verbose("Skipping " . basename($file) . " (recently modified)");
                 continue;
             }
 
-            $this->info("Processing: " . basename($file));
+            $this->verbose("Processing: " . basename($file));
             $this->processFile($file, $sender);
         }
     }
@@ -107,7 +117,7 @@ class SendCommand extends Command
                 
                 if ($result['success']) {
                     $totalSent += count($batch);
-                    $this->info("Sent batch of {$count} events.");
+                    $this->verbose("Sent batch of {$count} events.");
                 } else {
                     // Store failed events for potential retry or logging
                     $failedEvents = array_merge($failedEvents, $batch);
@@ -125,7 +135,7 @@ class SendCommand extends Command
             
             if ($result['success']) {
                 $totalSent += count($batch);
-                $this->info("Sent remaining " . count($batch) . " events.");
+                $this->verbose("Sent remaining " . count($batch) . " events.");
             } else {
                 $failedEvents = array_merge($failedEvents, $batch);
                 $this->warn("Failed to send remaining batch.");
@@ -138,15 +148,15 @@ class SendCommand extends Command
         // (whether successful or not - we've tried our best)
         if (file_exists($processingFile)) {
             unlink($processingFile);
-            $this->info("Cleaned up: " . basename($processingFile));
+            $this->verbose("Cleaned up: " . basename($processingFile));
         }
         
-        // Report results
+        // Report results - only warn if failures
         if (!empty($failedEvents)) {
             $this->warn("Total events lost due to send failures: " . count($failedEvents));
         }
         
-        $this->info("Done. Total sent: {$totalSent}");
+        $this->verbose("Done. Total sent: {$totalSent}");
         
         return 0;
     }
@@ -173,7 +183,7 @@ class SendCommand extends Command
             // Exponential backoff: 1s, 2s, 4s...
             if ($attempts < $this->maxRetries) {
                 $sleepTime = pow(2, $attempts - 1);
-                $this->warn("Retry {$attempts}/{$this->maxRetries} failed. Waiting {$sleepTime}s...");
+                $this->verbose("Retry {$attempts}/{$this->maxRetries} failed. Waiting {$sleepTime}s...");
                 sleep($sleepTime);
             }
         }
