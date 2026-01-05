@@ -58,34 +58,15 @@ class BaddyBugsAgentServiceProvider extends ServiceProvider
             }
         }
         
-        // Register Blade directives for frontend monitoring
         $this->registerBladeDirectives();
-        
-        // Boot Livewire monitoring if enabled
         $this->bootLivewireMonitoring();
-        
-        // Boot Feature Collector if enabled
         $this->bootFeatureCollector();
-        
-        // Boot Security Collector if enabled
         $this->bootSecurityCollector();
-        
-        // Register Log Handler if enabled
         $this->registerLogHandler();
-        
-        // Boot Health Collector if enabled
         $this->bootHealthCollector();
-        
-        // Boot View Collector if enabled
         $this->bootViewCollector();
-        
-        // Boot Middleware Collector if enabled
         $this->bootMiddlewareCollector();
-        
-        // Boot Timeline Collector if enabled
         $this->bootTimelineCollector();
-        
-        // Boot new collectors
         $this->bootAuthCollector();
         $this->bootBroadcastCollector();
         $this->bootRateLimitCollector();
@@ -104,6 +85,10 @@ class BaddyBugsAgentServiceProvider extends ServiceProvider
         $this->bootLLMCollector();
         $this->bootHandledExceptionCollector();
         $this->bootLifecycleCollector();
+        $this->bootEncryptionCollector();
+        $this->bootObserverCollector();
+        $this->bootAdvancedEloquentCollector();
+        $this->bootHashingCollector();
     }
 
     /**
@@ -622,6 +607,74 @@ class BaddyBugsAgentServiceProvider extends ServiceProvider
 
         try {
             $collector = $this->app->make(Collectors\LifecycleCollector::class);
+            $collector->boot();
+        } catch (\Throwable $e) {
+            // Silent failure
+        }
+    }
+
+    /**
+     * Boot the Encryption Collector
+     */
+    protected function bootEncryptionCollector(): void
+    {
+        if (!config('baddybugs.collectors.encryption.enabled', false)) {
+            return;
+        }
+
+        try {
+            $collector = $this->app->make(Collectors\EncryptionCollector::class);
+            $collector->boot();
+        } catch (\Throwable $e) {
+            // Silent failure
+        }
+    }
+
+    /**
+     * Boot the Observer Collector
+     */
+    protected function bootObserverCollector(): void
+    {
+        if (!config('baddybugs.collectors.observers.enabled', false)) {
+            return;
+        }
+
+        try {
+            $collector = $this->app->make(Collectors\ObserverCollector::class);
+            $collector->boot();
+        } catch (\Throwable $e) {
+            // Silent failure
+        }
+    }
+
+    /**
+     * Boot the Advanced Eloquent Collector
+     */
+    protected function bootAdvancedEloquentCollector(): void
+    {
+        if (!config('baddybugs.collectors.advanced_eloquent.enabled', false)) {
+            return;
+        }
+
+        try {
+            $collector = $this->app->make(Collectors\AdvancedEloquentCollector::class);
+            $collector->boot();
+        } catch (\Throwable $e) {
+            // Silent failure
+        }
+    }
+
+    /**
+     * Boot the Hashing Collector
+     */
+    protected function bootHashingCollector(): void
+    {
+        if (!config('baddybugs.collectors.hashing.enabled', false)) {
+            return;
+        }
+
+        try {
+            $collector = $this->app->make(Collectors\HashingCollector::class);
             $collector->boot();
         } catch (\Throwable $e) {
             // Silent failure
