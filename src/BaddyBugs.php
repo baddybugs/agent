@@ -138,10 +138,26 @@ class BaddyBugs
         ];
 
         foreach ($candidates as $key => $class) {
-            if (config("baddybugs.collectors.{$key}") === true) {
-                $collector = $this->app->make($class);
-                $collector->boot();
-                $this->collectors[$key] = $collector;
+            $config = config("baddybugs.collectors.{$key}");
+            
+            // Support multiple config formats:
+            // - true/false (simple boolean)
+            // - ['enabled' => true/false, 'options' => [...]] (advanced)
+            $enabled = false;
+            if ($config === true || $config === 1 || $config === '1' || $config === 'true') {
+                $enabled = true;
+            } elseif (is_array($config) && ($config['enabled'] ?? false)) {
+                $enabled = true;
+            }
+            
+            if ($enabled) {
+                try {
+                    $collector = $this->app->make($class);
+                    $collector->boot();
+                    $this->collectors[$key] = $collector;
+                } catch (\Throwable $e) {
+                    // Silently fail - collector might not be available
+                }
             }
         }
     }

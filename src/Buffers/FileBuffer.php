@@ -25,7 +25,9 @@ class FileBuffer implements BufferInterface
         $this->ttlSeconds = config('baddybugs.buffer_ttl', 60 * 60); // 1 hour fallback
         
         if (!file_exists($this->path)) {
-            @mkdir($this->path, 0755, true);
+            if (!@mkdir($this->path, 0755, true)) {
+                \Illuminate\Support\Facades\Log::error("BaddyBugs: Failed to create buffer directory: {$this->path}. Check permissions.");
+            }
         }
         
         // Auto-cleanup old files (runs occasionally, not every request)
@@ -42,7 +44,16 @@ class FileBuffer implements BufferInterface
         // Write the event
         $line = json_encode($entry, JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES);
         if ($line !== false) {
-            @file_put_contents($this->filename, $line . PHP_EOL, FILE_APPEND | LOCK_EX);
+            try {
+                // Remove silence operator to detect errors
+                $result = file_put_contents($this->filename, $line . PHP_EOL, FILE_APPEND | LOCK_EX);
+                
+                if ($result === false) {
+                    \Illuminate\Support\Facades\Log::error("BaddyBugs: Failed to write to buffer file: {$this->filename}. Check permissions.");
+                }
+            } catch (\Throwable $e) {
+                \Illuminate\Support\Facades\Log::error("BaddyBugs FileBuffer Error: " . $e->getMessage());
+            }
         }
     }
 
