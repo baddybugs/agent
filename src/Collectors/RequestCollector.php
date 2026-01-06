@@ -32,10 +32,10 @@ class RequestCollector implements CollectorInterface
     {
         try {
             // Log for debugging production issue
-            // \Illuminate\Support\Facades\Log::info("BaddyBugs RequestCollector processing: " . $request->path());
+            \Illuminate\Support\Facades\Log::info("BaddyBugs RequestCollector processing: " . $request->path());
 
             if ($this->shouldIgnore($request)) {
-                // \Illuminate\Support\Facades\Log::info("BaddyBugs RequestCollector IGNORED: " . $request->path());
+                \Illuminate\Support\Facades\Log::info("BaddyBugs RequestCollector IGNORED: " . $request->path());
                 return;
             }
 
