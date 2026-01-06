@@ -53,8 +53,8 @@ class RequestCollector implements CollectorInterface
                 'url' => BaddyBugs::performUrlRedaction($request->url()),
                 'status' => $response->getStatusCode(),
                 'duration_ms' => $duration,
-                'ip' => $request->ip(),
-                'user_agent' => $request->userAgent(),
+                'ip' => $request->ip() ?? '',
+                'user_agent' => $request->userAgent() ?? '',
                 'inputs' => $request->input(),
                 'headers' => $this->filterHeaders($request->headers->all()),
                 'response_status' => $response->getStatusCode(),
@@ -86,11 +86,12 @@ class RequestCollector implements CollectorInterface
             $payload['content_length'] = $response->headers->get('Content-Length', strlen($response->getContent()));
             
             // Add server info
-            $payload['server'] = $request->server('SERVER_SOFTWARE');
+            $payload['server'] = $request->server('SERVER_SOFTWARE') ?? '';
 
             BaddyBugs::record('request', $request->method() . ' ' . $request->path(), $payload);
         } catch (\Throwable $e) {
-            // Fail silently to prevent agent from crashing the app
+            // Fail silently to prevent agent from crashing the app, but log in debug if needed
+            // \Illuminate\Support\Facades\Log::error('BaddyBugs RequestCollector Error: ' . $e->getMessage());
         }
     }
 
