@@ -16,7 +16,12 @@ class HttpSender implements SenderInterface
     public function __construct()
     {
         $this->maxRetries = config('baddybugs.retry_attempts', 1);
-        $this->timeout = config('baddybugs.send_timeout', 10.0);
+        
+        // Force minimum 10s timeout to prevent cURL 28 errors on bulk ingest
+        // even if user config specifies a lower value (e.g. 2.0s)
+        $configTimeout = config('baddybugs.send_timeout', 10.0);
+        $this->timeout = max((float) $configTimeout, 10.0);
+        
         $this->compress = config('baddybugs.compress', true);
         $this->sign = config('baddybugs.sign_payloads', true);
     }
