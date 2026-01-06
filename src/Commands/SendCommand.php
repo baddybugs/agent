@@ -9,7 +9,7 @@ class SendCommand extends Command
 {
     protected $signature = 'baddybugs:send
                             {--limit=1000}
-                            {--batch=50 : Number of events per batch}
+                            {--batch=10 : Number of events per batch}
                             {--force}
                             {--max-retries=3}';
     protected $description = "Send buffered events from local storage to BaddyBugs";
