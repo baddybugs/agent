@@ -14,11 +14,6 @@ class AgentCommand extends Command
 
     public function handle(): int
     {
-        if (!$this->option('daemon')) {
-            $this->call('baddybugs:send');
-            return 0;
-        }
-
         $this->info("Starting BaddyBugs Agent daemon [PID: " . getmypid() . "]...");
         
         // Loop infinitely

@@ -80,13 +80,19 @@ php artisan vendor:publish --tag=baddybugs-config
 ```env
 BADDYBUGS_ENABLED=true
 BADDYBUGS_API_KEY=your-api-key-here
-BADDYBUGS_ENDPOINT=https://ingest.baddybugs.com/api/v1/events
 BADDYBUGS_ENV=production
 ```
 
 ### 2. C'est tout ! 🎉
 
+Puis faites 
+```
+php artisan baddybugs:agent
+```
+
 L'agent démarre automatiquement et collecte les données.
+
+En production vous devez la mettre comme tache de fond soit avec cron ou supervisor
 
 ---
 
@@ -457,19 +463,12 @@ php artisan baddybugs:send --test
 php artisan about
 
 # Envoyer les événements en attente
-php artisan baddybugs:send
+php artisan baddybugs:agent
 
 # Vider le buffer
 php artisan baddybugs:flush
 ```
 
----
-
-## 📚 Documentation Additionnelle
-
-- **[DATA_SCHEMA.md](DATA_SCHEMA.md)** - Schéma complet des données pour le dashboard
-- **[COLLECTORS_INVENTORY.md](COLLECTORS_INVENTORY.md)** - Inventaire détaillé des 42 collectors
-- **[AGENT_ANALYSIS.md](AGENT_ANALYSIS.md)** - Analyse technique de l'architecture
 
 ---
 

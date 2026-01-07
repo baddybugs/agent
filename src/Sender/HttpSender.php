@@ -34,7 +34,6 @@ class HttpSender implements SenderInterface
 
         // Rate limiting protection
         if ($this->isRateLimited()) {
-            Log::debug('[BaddyBugs] Rate limited, skipping send');
             return false;
         }
 
@@ -114,11 +113,6 @@ class HttpSender implements SenderInterface
                     ->withBody($body, $headers['Content-Type'])
                     ->post($endpoint);
 
-                Log::debug('[BaddyBugs] Response received', [
-                    'status' => $response->status(),
-                    'successful' => $response->successful(),
-                ]);
-
                 if ($response->successful()) {
                     return true;
                 }
@@ -127,7 +121,6 @@ class HttpSender implements SenderInterface
                 if ($response->status() === 429) {
                     $retryAfter = $response->header('Retry-After', 60);
                     $this->setRateLimited((int) $retryAfter);
-                    Log::warning('[BaddyBugs] Rate limited by server');
                     return false;
                 }
 
@@ -141,12 +134,7 @@ class HttpSender implements SenderInterface
                     return false;
                 }
 
-                // 5xx errors - log and retry
-                Log::warning('[BaddyBugs] Server error, will retry', [
-                    'status' => $response->status(),
-                    'attempt' => $attempt,
-                ]);
-
+            
             } catch (\Throwable $e) {
                 $lastException = $e;
                 Log::debug('[BaddyBugs] Exception during send', [
